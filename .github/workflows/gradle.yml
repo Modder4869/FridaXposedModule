@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:   # allows manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,14 +15,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 8
+      - name: Set up JDK 17 (for SDK tools)
         uses: actions/setup-java@v4
         with:
-          java-version: '8'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Switch to JDK 8 (for Gradle build)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
 
       - name: Grant execute permission to gradlew
         run: chmod +x gradlew
@@ -39,7 +45,8 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build --no-daemon
-      - name: Upload APK
+
+      - name: Upload APK (optional)
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
