@@ -24,6 +24,17 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install NDK 20.1 (compatible with AGP 3.5.4)
+        run: |
+          # Download NDK r20b (version 20.1.5948944)
+          wget -q https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip
+          unzip -q android-ndk-r20b-linux-x86_64.zip -d $ANDROID_HOME/ndk/
+          # Rename to match the version expected by Gradle
+          mv $ANDROID_HOME/ndk/android-ndk-r20b $ANDROID_HOME/ndk/20.1.5948944
+          rm android-ndk-r20b-linux-x86_64.zip
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+
       - name: Switch to JDK 8 (for Gradle build)
         uses: actions/setup-java@v4
         with:
@@ -44,7 +55,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon
+        run: ./gradlew build --no-daemon --stacktrace
 
       - name: Upload APK (optional)
         uses: actions/upload-artifact@v4
